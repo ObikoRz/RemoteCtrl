@@ -11,6 +11,7 @@
 #endif
 
 
+
 // 唯一的应用程序对象
 
 CWinApp theApp;
@@ -36,25 +37,26 @@ int main()
         {
             // TODO: 在此处为应用程序的行为编写代码。
             //初始化
-            server;
-            WSADATA data;
-            WSAStartup(MAKEWORD(1, 1), &data);  //TODO：          返回值处理
-            SOCKET serv_sock = socket(PF_INET, SOCK_STREAM, 0);   //TODO   校验
-            sockaddr_in serv_addr;
-            memset(&serv_addr, 0, sizeof(serv_addr));
-            serv_addr.sin_family = AF_INET;
-            serv_addr.sin_addr.s_addr = INADDR_ANY;
-            serv_addr.sin_port = htons(9999);
-            //绑定
-            bind(serv_sock, (sockaddr*)&serv_addr, sizeof(serv_addr)); //TODO  校验
-            //监听
-            listen(serv_sock, 1);
-            char buf[1024];
-            recv(serv_sock, buf, sizeof(buf), 0);
-            send(serv_sock, buf, sizeof(buf), 0);
+            CServerSocket* pserver = CServerSocket::getInstance();
+            int count = 0;
+            while (pserver != NULL) {
+                if (pserver->InitSocket() == false) {
+                    MessageBox(NULL, _T("网络初始化异常，未能成功初始化"),_T("网络初始化失败"), MB_OK | MB_ICONERROR);
+                    exit(0);
+                }
+                if (pserver->AcceptClient() == false) {
+                    if(count >=3 ){
+                        MessageBox(NULL, _T("无法正常接入用户"), _T("接入用户失败"), MB_OK | MB_ICONERROR);
+                        exit(0);
+                    }
+                    MessageBox(NULL, _T("无法正常接入用户"), _T("接入用户失败"), MB_OK | MB_ICONERROR);
+                    count++;
+                }
+                int ret = pserver->DealCommand();
+                //TODO: 处理命令
+            }
 
-            closesocket(serv_sock);
-            WSACleanup();
+            
         }
     }
     else

@@ -1,12 +1,15 @@
-#pragma once
 #include "pch.h"
 #include "framework.h"
 
-class CServerSocket
+class CSerSocket
 {
 public:
-	CServerSocket();
-	~CServerSocket();
+
+private:
+	CSerSocket& operator=(const CSerSocket& ss);
+	CSerSocket();
+	~CSerSocket();
+	BOOL InitSockEnv();
 };
 
-extern CServerSocket server;
+extern CSerSocket sock;
